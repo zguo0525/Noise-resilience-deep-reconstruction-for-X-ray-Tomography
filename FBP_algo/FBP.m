@@ -17,6 +17,37 @@ projections_expand(:, :, 2, :) = load_projections;
 % +
 for offset = [40, 50]
 
+    for idx = 1:10000
+
+        disp(idx);
+
+        param.filter='hann';
+
+        param.dang= 360/1601*offset;
+        param.deg = 0:param.dang:(360 - param.dang); 
+
+        param.deg = param.deg*param.dir;
+        param.nProj = length(param.deg);
+
+        projections = projections_expand(idx, :, :, :);
+        projections = reshape(projections, 1600, 2, 256);
+        proj = permute(projections, [3, 2, 1]);
+        proj = proj(:, :, 1:offset:end);
+
+        proj_filtered = filtering(proj, param);
+        Reconimg = CTbackprojection(proj_filtered, param);
+
+        Reconimg_tot(idx, :, :) = Reconimg;
+    end
+
+    name = strcat('../FBP_results/FDK-ic-1600-tot-offset-', num2str(offset), '.npy');
+    writeNPY(Reconimg_tot, name);
+    
+end
+
+% +
+for offset = [40, 50]
+
     for photon = [32, 40, 50, 64, 80, 100, 128, 160, 200, 256, 320, 400, 500, 640, 800, 1000, 1280, 1600, 2000]
 
         name = strcat('../tot_proj_test_ic_1600_photon_', num2str(photon), '.npy');
