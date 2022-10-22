@@ -1,4 +1,4 @@
-# Noise-resilience-deep-reconstruction-for-X-ray-Tomography
+# Noise resilience deep reconstruction for X ray Tomography
 ====================
 
 This repository contains the jupyter notebooks, python libraries, and information needed to reproduce the results and figures in the paper "Randomized probe imaging through deep k-learning" (https://opg.optica.org/oe/fulltext.cfm?uri=oe-30-2-2247&id=467928). (Zhen Guo, Abraham Levitan, George Barbastathis, and Riccardo Comin, "Randomized probe imaging through deep k-learning," Opt. Express 30, 2247-2264 (2022))
