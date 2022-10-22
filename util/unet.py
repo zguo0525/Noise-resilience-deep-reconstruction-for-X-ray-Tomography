@@ -222,10 +222,7 @@ class Decoder(nn.Module):
 class FBP_with_CNN(nn.Module):
     """ FBP+CNN
     """
-    def __init__(self, img_size=320, patch_size=32, in_chans=1,
-                 embed_dim=1024, depth=24, num_heads=16,
-                 decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
-                 mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False, remove_skip=0):
+    def __init__(self, img_size=128, in_chans=1, remove_skip=0):
         super().__init__()
 
         # --------------------------------------------------------------------------
@@ -242,7 +239,7 @@ class FBP_with_CNN(nn.Module):
         
         return loss
 
-    def forward(self, imgs, mask_ratio=0.75):
+    def forward(self, imgs):
      
         FBP = imgs[:, 0:1, :, :]
         gd = imgs[:, 1:2, :, :]

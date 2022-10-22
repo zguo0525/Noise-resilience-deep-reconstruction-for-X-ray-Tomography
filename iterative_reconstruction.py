@@ -3,7 +3,6 @@ import torch.nn.functional as F
 import torch
 import numpy as np
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 import time
 import os
 
@@ -230,7 +229,7 @@ if __name__ == "__main__":
     elif my_task_id > 11 and my_task_id <=30:
         
         photons = [32, 40, 50, 64, 80, 100, 128, 160, 200, 256, 320, 400, 500, 640, 800, 1000, 1280, 1600, 2000]
-        photon = photons[my_task_id-12]
+        photon = photons[my_task_id-11-1]
         
         for offset in [40, 50]:
             
@@ -286,10 +285,76 @@ if __name__ == "__main__":
                                                          [nz, nx, ny], lr=0.01, iterations=51, batch_size=1600,
                                                          loss_func=torch.nn.MSELoss(), optimizer='Adam', GPU=True, 
                                                          schedule=True, weight=TV_weight, clip=clip)
-                        
+                        recon = recon[::5]
                         sparse_recons.append(recon)
 
                     sparse_recons = np.array(sparse_recons).astype(np.float32)
                     print(np.shape(sparse_recons))
                     np.save('./iterative_results/iterative_sparse_photon_' + str(photon) 
+                            + '_offset_' + str(offset) + '_weight_' + str(TV_weight) + '_clip_' + str(clip) + '.npy', sparse_recons)
+                    
+    elif my_task_id >30:
+        
+        the_idx = my_task_id-1-30
+        
+        for offset in [40, 50]:
+            
+            for TV_weight in [0, 2]:
+                
+                for clip in [True, False]:
+
+                    direction = 1 # clock wise/ counter clockwise
+                    start = 0.
+                    end = 360.
+                    step = 360/1601 * offset
+                    deg = direction * torch.arange(start, end-step, step)
+                    nProj = len(deg)
+
+                    print(nProj)
+
+                    # using GPU?
+                    GPU = True
+
+                    # define number of object voxels
+                    nx, ny, nz = 300//2, 300//2, 1
+
+                    # object real size in mm
+                    sx, sy, sz = 8, 8, 16/128
+
+                    # real detector pixel density
+                    nu, nv = 128*2, 1
+
+                    # detector real size in mm
+                    su, sv = 25, 25/256
+
+                    # single voxel size
+                    dx, dy, dz, du, dv = sx/nx, sy/ny, sz/nz, su/nu, sv/nv
+
+                    # Geometry calculation
+                    xs = torch.arange(-(nx -1) / 2, nx / 2, 1) * dx
+                    ys = torch.arange(-(ny -1) / 2, ny / 2, 1) * dy
+                    zs = torch.arange(-(nz -1) / 2, nz / 2, 1) * dz
+
+                    us = torch.arange(-(nu -1) / 2, nu / 2, 1) * du
+                    vs = torch.arange(-(nv -1) / 2, nv / 2, 1) * dv
+
+                    # source to detector, and source to object axis distances in mm
+                    DSD, DSO = 230.11+342.17, 230.11
+
+                    sparse_recons = []
+
+                    sparse_proj = np.load('tot_proj_ic_1600.npy')[1000*the_idx:1000*(the_idx+1)]
+
+                    for sparse_proj in tqdm(sparse_proj):
+
+                        recon, loss, times = reconstruct(torch.from_numpy(sparse_proj[::offset, :, :]).to(torch.float32), 
+                                                         [nz, nx, ny], lr=0.01, iterations=51, batch_size=1600,
+                                                         loss_func=torch.nn.MSELoss(), optimizer='Adam', GPU=True, 
+                                                         schedule=True, weight=TV_weight, clip=clip)
+                        recon = recon[::5]
+                        sparse_recons.append(recon)
+
+                    sparse_recons = np.array(sparse_recons).astype(np.float32)
+                    print(np.shape(sparse_recons))
+                    np.save('./iterative_results/iterative_sparse_' + str(the_idx) 
                             + '_offset_' + str(offset) + '_weight_' + str(TV_weight) + '_clip_' + str(clip) + '.npy', sparse_recons)
