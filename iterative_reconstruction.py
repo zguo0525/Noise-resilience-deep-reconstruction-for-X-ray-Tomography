@@ -98,7 +98,7 @@ def total_variation_loss(img, weight=1e-5):
     return weight*(tv_h+tv_w)/(c_img*h_img*w_img)
 
 def reconstruct(projections, resolution, lr, iterations, batch_size, 
-                loss_func=torch.nn.MSELoss(), optimizer='Adam', GPU=False, schedule=True, weight=0.5, clip=True):
+                loss_func=torch.nn.MSELoss(), optimizer='Adam', GPU=False, schedule=True, weight=0.5, clip=True, step_size=10):
     """Performs a full reconstruction based on gradient descent
     """
     
@@ -118,7 +118,7 @@ def reconstruct(projections, resolution, lr, iterations, batch_size,
         t_optimizer = torch.optim.SGD([im], lr=lr, momentum=True)
 
     if schedule:
-        scheduler = torch.optim.lr_scheduler.StepLR(t_optimizer, step_size=10, gamma=0.5)
+        scheduler = torch.optim.lr_scheduler.StepLR(t_optimizer, step_size=step_size, gamma=0.5)
 
     def closure():
         t_optimizer.zero_grad()
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
         print(nProj)
 
-        for TV_weight in [0, 2]:
+        for TV_weight in [1]:
 
             # non-negativity constraint?
             clip = True
@@ -214,11 +214,11 @@ if __name__ == "__main__":
             for tot_projection in tqdm(tot_projections):
 
                 recon, loss, times = reconstruct(torch.from_numpy(tot_projection[:, :, :]).to(torch.float32), 
-                                                 [nz, nx, ny], lr=0.01, iterations=51, batch_size=1600, 
+                                                 [nz, nx, ny], lr=0.05, iterations=101, batch_size=1600, 
                                                  loss_func=torch.nn.MSELoss(), optimizer='Adam', 
                                                  GPU=True, schedule=True, weight=TV_weight, clip=clip)
 
-                recon = recon[::10]
+                recon = recon[::20]
 
                 total_recon.append(recon)
 
@@ -282,10 +282,10 @@ if __name__ == "__main__":
                     for sparse_proj in tqdm(sparse_proj):
 
                         recon, loss, times = reconstruct(torch.from_numpy(sparse_proj[::offset, :, :]).to(torch.float32), 
-                                                         [nz, nx, ny], lr=0.01, iterations=51, batch_size=1600,
+                                                         [nz, nx, ny], lr=0.05, iterations=101, batch_size=1600,
                                                          loss_func=torch.nn.MSELoss(), optimizer='Adam', GPU=True, 
                                                          schedule=True, weight=TV_weight, clip=clip)
-                        recon = recon[::5]
+                        recon = recon[::10]
                         sparse_recons.append(recon)
 
                     sparse_recons = np.array(sparse_recons).astype(np.float32)
@@ -293,7 +293,7 @@ if __name__ == "__main__":
                     np.save('./iterative_results/iterative_sparse_photon_' + str(photon) 
                             + '_offset_' + str(offset) + '_weight_' + str(TV_weight) + '_clip_' + str(clip) + '.npy', sparse_recons)
                     
-    elif my_task_id >30:
+    elif my_task_id > 30:
         
         the_idx = my_task_id-1-30
         
@@ -348,10 +348,10 @@ if __name__ == "__main__":
                     for sparse_proj in tqdm(sparse_proj):
 
                         recon, loss, times = reconstruct(torch.from_numpy(sparse_proj[::offset, :, :]).to(torch.float32), 
-                                                         [nz, nx, ny], lr=0.01, iterations=51, batch_size=1600,
+                                                         [nz, nx, ny], lr=0.05, iterations=101, batch_size=1600,
                                                          loss_func=torch.nn.MSELoss(), optimizer='Adam', GPU=True, 
                                                          schedule=True, weight=TV_weight, clip=clip)
-                        recon = recon[::5]
+                        recon = recon[::10]
                         sparse_recons.append(recon)
 
                     sparse_recons = np.array(sparse_recons).astype(np.float32)
