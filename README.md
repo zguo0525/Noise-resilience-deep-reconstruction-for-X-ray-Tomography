@@ -1,4 +1,4 @@
-# Noise resilience deep reconstruction for X ray Tomography
+# Noise-resilience deep reconstruction for X-ray Tomography
 ====================
 
 This repository contains the jupyter notebooks, python libraries, and information needed to reproduce the results and figures in the paper "Noise-resilient deep tomographic imaging" (https://preprints.opticaopen.org/articles/preprint/Noise-resilient_deep_tomographic_imaging/21931557).
