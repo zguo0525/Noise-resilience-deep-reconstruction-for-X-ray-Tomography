@@ -10,6 +10,5 @@ Organization
 - The FBP_algo folder contains all the important functions to compute FBP reconstruction.
 - The util folder contains all the important functions to train our neural network.
 - Simulate_Projections.ipynb is used to generate simulated data the X-ray projections for the paper's simulation section.
-- Generating-E2E-Simulation-Data.ipynb is used to generate simulated training data for End-to-End training.
 - Sim_Results.ipynb is used to perform analysis and generate figures for the simulation section of the paper.
 - Experimental_Results.ipynb is used to perform analysis and generate figures for the experimental section of the paper.
